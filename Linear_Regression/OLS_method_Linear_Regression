@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as pt
+def linear_regression(x,y):
+    x_train=x[:-1]
+    y_train=y[:-1]
+    x_test=x[-1]
+    y_test=y[-1]
+    mean_x=np.mean(x_train)
+    mean_y=np.mean(y_train)
+    num=0
+    den=0
+    for i in range(len(x_train)):
+        num+= (x_train[i]-mean_x)*(y_train[i]-mean_y)
+        den+= (x_train[i]-mean_x)**2
+    m=num/den
+    c=mean_y-m*mean_x
+    y_pred= m*x_test+c
+    y_opt=m*x+c
+    error=(y_test-y_pred)**2/len(x)
+    print("error:",error)
+    print("Slope:",m)
+    print("c:",c)
+
+    pt.scatter(x_train,y_train, color="blue",label="Train_data")
+    pt.scatter(x_test,y_test, color="green",label="Actual_val")
+    pt.scatter(x_test,y_pred, color="red",label="Pred_val")
+    pt.plot(x,y_opt,color="orange",label="Regression_line")
+    pt.legend()
+    pt.show()
+
+linear_regression(np.array([1, 2, 3, 4, 5]) ,np.array([2, 4, 6, 8, 10]) )
