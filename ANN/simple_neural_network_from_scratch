@@ -1,0 +1,103 @@
+import numpy as np
+import matplotlib.pyplot as plt # Import matplotlib
+
+# ======= Sigmoid and its derivative =======
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def sigmoid_derivative(z):
+    s = sigmoid(z)
+    return s * (1 - s)
+
+# ======= Initialize parameters =======
+np.random.seed(42)
+
+# One training sample
+x = 0.5         # Input
+y_true = 1      # True output
+
+# Weights and biases
+w1, w2 = np.random.randn(2)  # Input to hidden layer weights
+b1, b2 = np.random.randn(2)  # Hidden layer biases
+
+w3, w4 = np.random.randn(2)  # Hidden to output layer weights
+b3 = np.random.randn()       # Output layer bias (corrected to be a single scalar)
+
+# Learning rate
+lr = 0.1
+
+# Lists to store loss for plotting
+losses = []
+epochs = []
+
+# ======= Training loop =======
+for epoch in range(1000):
+    ### Forward pass
+    z1 = w1 * x + b1
+    h1 = sigmoid(z1)
+
+    z2 = w2 * x + b2
+    h2 = sigmoid(z2)
+
+    z3 = w3 * h1 + w4 * h2 + b3
+    y_pred = sigmoid(z3)
+
+    loss = 0.5 * (y_pred - y_true)**2
+
+    # Store loss and epoch for plotting
+    losses.append(loss)
+    epochs.append(epoch)
+
+    ### Backward pass (gradients via chain rule)
+    dL_dypred = y_pred - y_true
+    dypred_dz3 = sigmoid_derivative(z3)
+
+    dz3_dw3 = h1
+    dz3_dw4 = h2
+    dz3_db3 = 1
+
+    dz3_dh1 = w3
+    dz3_dh2 = w4
+
+    dh1_dz1 = sigmoid_derivative(z1)
+    dh2_dz2 = sigmoid_derivative(z2)
+
+    dz1_dw1 = x
+    dz2_dw2 = x
+
+    # Output layer gradients
+    dL_dw3 = dL_dypred * dypred_dz3 * dz3_dw3
+    dL_dw4 = dL_dypred * dypred_dz3 * dz3_dw4
+    dL_db3 = dL_dypred * dypred_dz3 * dz3_db3
+
+    # Hidden layer gradients
+    dL_dz1 = dL_dypred * dypred_dz3 * dz3_dh1 * dh1_dz1
+    dL_dw1 = dL_dz1 * dz1_dw1
+    dL_db1 = dL_dz1
+
+    dL_dz2 = dL_dypred * dypred_dz3 * dz3_dh2 * dh2_dz2
+    dL_dw2 = dL_dz2 * dz2_dw2
+    dL_db2 = dL_dz2
+
+    ### Update weights and biases
+    w1 -= lr * dL_dw1
+    w2 -= lr * dL_dw2
+    b1 -= lr * dL_db1
+    b2 -= lr * dL_db2
+
+    w3 -= lr * dL_dw3
+    w4 -= lr * dL_dw4
+    b3 -= lr * dL_db3
+
+    if epoch % 100 == 0:
+        print(f"Epoch {epoch}: Loss = {loss:.4f}, Prediction = {y_pred:.4f}")
+
+# ======= Plotting Loss vs. Epoch =======
+plt.figure(figsize=(10, 6))
+plt.plot(epochs, losses, label='Training Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Loss vs. Epoch during Training')
+plt.grid(True)
+plt.legend()
+plt.show()
